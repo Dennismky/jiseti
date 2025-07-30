@@ -30,21 +30,34 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-gray-700 hover:text-primary-800 transition-colors">
-              Home
-            </Link>
-            <Link to="/records" className="text-gray-700 hover:text-primary-800 transition-colors">
-              View Reports
-            </Link>
-            <Link to="/map" className="text-gray-700 hover:text-primary-800 transition-colors">
-              Map View
-            </Link>
-            {!isAuthenticated && (
-              <Link to="/report" className="text-gray-700 hover:text-primary-800 transition-colors">
-                Report Issue
-              </Link>
-            )}
-          </div>
+  <Link
+    to="/"
+    className="text-gray-700 hover:text-white hover:bg-gradient-to-br hover:from-primary-800 hover:to-primary-900 px-4 py-2 rounded transition-colors duration-300"
+  >
+    Home
+  </Link>
+  <Link
+    to="/records"
+    className="text-gray-700 hover:text-white hover:bg-gradient-to-br hover:from-primary-800 hover:to-primary-900 px-4 py-2 rounded transition-colors duration-300"
+  >
+    View Reports
+  </Link>
+  <Link
+    to="/map"
+    className="text-gray-700 hover:text-white hover:bg-gradient-to-br hover:from-primary-800 hover:to-primary-900 px-4 py-2 rounded transition-colors duration-300"
+  >
+    Map View
+  </Link>
+  {!isAuthenticated && (
+    <Link
+      to="/report"
+      className="text-gray-700 hover:text-white hover:bg-gradient-to-br hover:from-primary-800 hover:to-primary-900 px-4 py-2 rounded transition-colors duration-300"
+    >
+      Report Issue
+    </Link>
+  )}
+</div>
+
 
           {/* User Menu */}
           <div className="hidden md:flex items-center space-x-4">

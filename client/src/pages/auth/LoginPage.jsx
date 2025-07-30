@@ -27,7 +27,7 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-800 to-primary-900 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#EAEFDB' }}>
       <div className="max-w-md w-full bg-white rounded-xl shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="bg-primary-800 p-6 text-center">

@@ -15,16 +15,26 @@ const LandingPage = () => {
             Your voice matters in building transparent, accountable governance.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/report" className="bg-accent-500 hover:bg-orange-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors">
-              Report Red Flag
-            </Link>
-            <Link to="/records" className="bg-primary-700 hover:bg-primary-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors border border-primary-600">
-              View Reports
-            </Link>
-            <Link to="/map" className="bg-primary-600 hover:bg-primary-500 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors border border-primary-500">
-              Map View
-            </Link>
-          </div>
+  <Link
+    to="/report"
+    className="bg-accent-500 hover:bg-orange-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition duration-300 ease-in-out hover:shadow-lg hover:scale-105"
+  >
+    Report Red Flag
+  </Link>
+  <Link
+    to="/records"
+    className="bg-primary-700 hover:bg-primary-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition duration-300 ease-in-out border border-primary-600 hover:shadow-lg hover:scale-105"
+  >
+    View Reports
+  </Link>
+  <Link
+    to="/map"
+    className="bg-primary-600 hover:bg-primary-500 text-white px-8 py-4 rounded-lg font-semibold text-lg transition duration-300 ease-in-out border border-primary-500 hover:shadow-lg hover:scale-105"
+  >
+    Map View
+  </Link>
+</div>
+
         </div>
       </section>
 
