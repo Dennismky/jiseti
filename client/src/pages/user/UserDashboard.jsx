@@ -1,4 +1,3 @@
-// ==================== src/pages/user/UserDashboard.jsx ====================
 import { useEffect, useState } from 'react'
 import { useRecords } from '../../hooks/useRecords'
 import { useAuth } from '../../hooks/useAuth'

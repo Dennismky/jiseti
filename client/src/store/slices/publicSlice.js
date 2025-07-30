@@ -55,7 +55,7 @@ const publicSlice = createSlice({
   reducers: {
     setFilters: (state, action) => {
       state.filters = { ...state.filters, ...action.payload }
-      state.pagination.page = 1 // Reset to first page when filtering
+      state.pagination.page = 1 
     },
     setSelectedRecord: (state, action) => {
       state.selectedRecord = action.payload

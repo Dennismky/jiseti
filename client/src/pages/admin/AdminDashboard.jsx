@@ -1,4 +1,4 @@
-// ==================== src/pages/admin/AdminDashboard.jsx ====================
+
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { adminService } from '../../services/adminService'

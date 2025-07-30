@@ -1,4 +1,3 @@
-// src/store/index.js
 import { configureStore } from '@reduxjs/toolkit'
 import authSlice from './slices/authSlice'
 import recordsSlice from './slices/recordsSlice'
@@ -20,8 +19,5 @@ export const store = configureStore({
     }),
 })
 
-// Remove the TypeScript type exports - they don't work in .js files
-// export type RootState = ReturnType<typeof store.getState>
-// export type AppDispatch = typeof store.dispatch
 
 export default store
