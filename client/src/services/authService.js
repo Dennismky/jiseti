@@ -9,7 +9,7 @@ export const authService = {
     } catch (adminError) {
       // If admin login fails, try user login
       try {
-        const response = await api.post('/login', { email, password })
+        const response = await api.post('/auth/login', { email, password })
         return response
       } catch (userError) {
         throw new Error(userError.error || 'Invalid credentials')
@@ -18,7 +18,7 @@ export const authService = {
   },
 
   async register(userData) {
-    const response = await api.post('/signup', userData)
+    const response = await api.post('/auth/signup', userData)
     return response
   },
 
