@@ -27,6 +27,19 @@ const RecordForm = ({ initialData = {}, onSubmit, onCancel, loading = false }) =
     }
   }
 
+  const updateLocation = (location) => {
+    setFormData(prev => ({
+      ...prev,
+      latitude: location.latitude || '',
+      longitude: location.longitude || ''
+    }))
+    
+    // Clear coordinate errors
+    if (errors.coordinates) {
+      setErrors(prev => ({ ...prev, coordinates: null }))
+    }
+  }
+
   const validateForm = () => {
     const newErrors = {}
     
@@ -44,8 +57,26 @@ const RecordForm = ({ initialData = {}, onSubmit, onCancel, loading = false }) =
       }
     }
 
+    // Validate URLs if provided
+    if (formData.image_url && !isValidUrl(formData.image_url)) {
+      newErrors.image_url = 'Please enter a valid image URL'
+    }
+
+    if (formData.video_url && !isValidUrl(formData.video_url)) {
+      newErrors.video_url = 'Please enter a valid video URL'
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
+  }
+
+  const isValidUrl = (string) => {
+    try {
+      new URL(string)
+      return true
+    } catch (_) {
+      return false
+    }
   }
 
   const handleSubmit = (e) => {
@@ -66,7 +97,7 @@ const RecordForm = ({ initialData = {}, onSubmit, onCancel, loading = false }) =
           type="text"
           value={formData.title}
           onChange={(e) => updateField('title', e.target.value)}
-          className="input-field"
+          className={`input-field ${errors.title ? 'border-red-300' : ''}`}
           placeholder="Brief description of the issue"
           required
           disabled={loading}
@@ -85,11 +116,14 @@ const RecordForm = ({ initialData = {}, onSubmit, onCancel, loading = false }) =
             onChange={(e) => updateField('type', e.target.value)}
             className="input-field"
             required
+            disabled={loading}
           >
             <option value={RECORD_TYPES.RED_FLAG}>Red Flag (Corruption)</option>
             <option value={RECORD_TYPES.INTERVENTION}>Intervention Request</option>
             <option value={RECORD_TYPES.INCIDENT}>General Incident</option>
             <option value={RECORD_TYPES.EMERGENCY}>Emergency</option>
+            <option value={RECORD_TYPES.COMPLAINT}>Complaint</option>
+            <option value={RECORD_TYPES.SUGGESTION}>Suggestion</option>
           </select>
         </div>
 
@@ -101,6 +135,7 @@ const RecordForm = ({ initialData = {}, onSubmit, onCancel, loading = false }) =
             value={formData.urgency_level}
             onChange={(e) => updateField('urgency_level', e.target.value)}
             className="input-field"
+            disabled={loading}
           >
             <option value={URGENCY_LEVELS.LOW}>Low</option>
             <option value={URGENCY_LEVELS.MEDIUM}>Medium</option>
@@ -119,7 +154,7 @@ const RecordForm = ({ initialData = {}, onSubmit, onCancel, loading = false }) =
           value={formData.description}
           onChange={(e) => updateField('description', e.target.value)}
           rows="4"
-          className="input-field"
+          className={`input-field ${errors.description ? 'border-red-300' : ''}`}
           placeholder="Provide detailed information about the issue"
           required
           disabled={loading}
@@ -134,10 +169,7 @@ const RecordForm = ({ initialData = {}, onSubmit, onCancel, loading = false }) =
         </label>
         <LocationPicker
           value={{ latitude: formData.latitude, longitude: formData.longitude }}
-          onChange={(location) => {
-            updateField('latitude', location.latitude)
-            updateField('longitude', location.longitude)
-          }}
+          onChange={updateLocation}
           disabled={loading}
         />
         {errors.coordinates && <p className="text-red-600 text-sm mt-1">{errors.coordinates}</p>}
@@ -154,11 +186,12 @@ const RecordForm = ({ initialData = {}, onSubmit, onCancel, loading = false }) =
             type="url"
             value={formData.image_url}
             onChange={(e) => updateField('image_url', e.target.value)}
-            className="input-field"
+            className={`input-field ${errors.image_url ? 'border-red-300' : ''}`}
             placeholder="https://example.com/image.jpg"
             disabled={loading}
           />
-          {formData.image_url && (
+          {errors.image_url && <p className="text-red-600 text-sm mt-1">{errors.image_url}</p>}
+          {formData.image_url && isValidUrl(formData.image_url) && (
             <div className="mt-2">
               <img
                 src={formData.image_url}
@@ -184,11 +217,12 @@ const RecordForm = ({ initialData = {}, onSubmit, onCancel, loading = false }) =
             type="url"
             value={formData.video_url}
             onChange={(e) => updateField('video_url', e.target.value)}
-            className="input-field"
+            className={`input-field ${errors.video_url ? 'border-red-300' : ''}`}
             placeholder="https://example.com/video.mp4"
             disabled={loading}
           />
-          {formData.video_url && (
+          {errors.video_url && <p className="text-red-600 text-sm mt-1">{errors.video_url}</p>}
+          {formData.video_url && isValidUrl(formData.video_url) && (
             <div className="mt-2">
               <video
                 src={formData.video_url}
