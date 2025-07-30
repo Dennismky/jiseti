@@ -13,7 +13,7 @@ class NormalUser(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
     email_verified = db.Column(db.Boolean, default=False)
-    phone_number = db.Column(db.String(20), nullable=True)  # For SMS notifications
+    phone_number = db.Column(db.String(20), nullable=True) 
 
     # Relationships
     records = db.relationship('Record', backref='normal_user', lazy=True, cascade="all, delete-orphan")
@@ -62,22 +62,22 @@ class Record(db.Model):
     __tablename__ = 'records'
 
     id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.String(20), nullable=False)  # 'red-flag' or 'intervention'
+    type = db.Column(db.String(20), nullable=False)  
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    status = db.Column(db.String(50), default="draft")  # draft, under-investigation, resolved, rejected
+    status = db.Column(db.String(50), default="draft")  
     latitude = db.Column(db.Float, nullable=True)
     longitude = db.Column(db.Float, nullable=True)
-    location_name = db.Column(db.String(255), nullable=True)  # Human readable location
+    location_name = db.Column(db.String(255), nullable=True) 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    resolution_notes = db.Column(db.Text, nullable=True)  # Admin notes when resolving
-    is_anonymous = db.Column(db.Boolean, default=False)  # For anonymous reports
-    vote_count = db.Column(db.Integer, default=0)  # Cache for performance
-    urgency_level = db.Column(db.String(20), default='medium')  # low, medium, high, critical
+    resolution_notes = db.Column(db.Text, nullable=True)  
+    is_anonymous = db.Column(db.Boolean, default=False)  
+    vote_count = db.Column(db.Integer, default=0)  
+    urgency_level = db.Column(db.String(20), default='medium')  
     
     # Foreign Keys
-    normal_user_id = db.Column(db.Integer, db.ForeignKey('normal_users.id'), nullable=True)  # Nullable for anonymous
+    normal_user_id = db.Column(db.Integer, db.ForeignKey('normal_users.id'), nullable=True) 
     assigned_admin_id = db.Column(db.Integer, db.ForeignKey('administrators.id'), nullable=True)
 
     # Relationships
@@ -87,7 +87,7 @@ class Record(db.Model):
 
     def to_dict(self):
         """Convert record to dictionary for API responses"""
-        # Get first media item for backward compatibility
+    
         media = self.media[0] if self.media else None
         
         return {
@@ -108,11 +108,11 @@ class Record(db.Model):
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
             
-            # Media (backward compatibility)
+            
             "image_url": media.image_url if media and media.image_url else None,
             "video_url": media.video_url if media and media.video_url else None,
             
-            # All media items
+            
             "media": [m.to_dict() for m in self.media],
             
             # Creator info (only for non-anonymous)
@@ -122,8 +122,8 @@ class Record(db.Model):
     def to_public_dict(self):
         """Public view without sensitive information"""
         data = self.to_dict()
-        # Remove sensitive information for public viewing
-        if self.is_anonymous or True:  # Always hide creator for privacy
+        
+        if self.is_anonymous or True:  
             data.pop('normal_user_id', None)
             data['creator_name'] = "Anonymous"
         return data
@@ -133,13 +133,13 @@ class Media(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     record_id = db.Column(db.Integer, db.ForeignKey("records.id"), nullable=False)
-    media_type = db.Column(db.String(10), nullable=False)  # 'image' or 'video'
+    media_type = db.Column(db.String(10), nullable=False) 
     media_url = db.Column(db.Text, nullable=False)
     filename = db.Column(db.String(255), nullable=True)
     file_size = db.Column(db.Integer, nullable=True)
     uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # For backward compatibility
+
     image_url = db.Column(db.String, nullable=True)
     video_url = db.Column(db.String, nullable=True)
 
@@ -152,7 +152,6 @@ class Media(db.Model):
             "filename": self.filename,
             "file_size": self.file_size,
             "uploaded_at": self.uploaded_at.isoformat(),
-            # Backward compatibility
             "image_url": self.image_url,
             "video_url": self.video_url
         }
@@ -163,10 +162,10 @@ class Vote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     record_id = db.Column(db.Integer, db.ForeignKey('records.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('normal_users.id'), nullable=False)
-    vote_type = db.Column(db.String(10), default='support')  # 'support' or 'urgent'
+    vote_type = db.Column(db.String(10), default='support')  
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Ensure one vote per user per record
+    
     __table_args__ = (db.UniqueConstraint('record_id', 'user_id', name='unique_user_vote'),)
 
     def to_dict(self):
@@ -189,7 +188,7 @@ class StatusHistory(db.Model):
     change_reason = db.Column(db.Text, nullable=True)
     changed_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relationship to get admin info
+
     admin = db.relationship('Administrator', backref='status_changes')
 
     def to_dict(self):
@@ -210,11 +209,11 @@ class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     record_id = db.Column(db.Integer, db.ForeignKey('records.id'), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('normal_users.id'), nullable=True)
-    notification_type = db.Column(db.String(20), nullable=False)  # 'email', 'sms', 'both'
+    notification_type = db.Column(db.String(20), nullable=False)  
     message = db.Column(db.Text, nullable=False)
     sent_at = db.Column(db.DateTime, default=datetime.utcnow)
-    delivery_status = db.Column(db.String(20), default='pending')  # pending, sent, failed
-    external_id = db.Column(db.String(100), nullable=True)  # SendGrid/Twilio message ID
+    delivery_status = db.Column(db.String(20), default='pending') 
+    external_id = db.Column(db.String(100), nullable=True) 
 
     def to_dict(self):
         return {
