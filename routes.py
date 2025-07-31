@@ -301,8 +301,9 @@ def anonymous_report():
         return make_response({'error': 'Title and description are required'}, 400)
     
     # Validate type
-    if data.get('type') not in ['red-flag', 'intervention']:
-        return make_response({'error': 'Type must be either "red-flag" or "intervention"'}, 400)
+    valid_types = ['red-flag', 'intervention', 'incident', 'complaint', 'suggestion', 'emergency']
+    if data.get('type') not in valid_types:
+        return make_response({'error': f'Type must be one of: {", ".join(valid_types)}'}, 400)
     
     try:
         # Create anonymous record
