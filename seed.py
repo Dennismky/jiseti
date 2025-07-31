@@ -356,29 +356,29 @@ def create_media(records):
     # Add media to about 60% of records
     for record in random.sample(records, int(len(records) * 0.6)):
         # Some records have both image and video
-        if random.random() < 0.7:  # 70% chance of image
+        if random.random() < 0.7: 
             image_url = random.choice(sample_images)
             media = Media(
                 record_id=record.id,
                 media_type="image",
                 media_url=image_url,
-                image_url=image_url,  # Backward compatibility
+                image_url=image_url,  
                 filename=f"evidence_{record.id}_{random.randint(1000, 9999)}.jpg",
-                file_size=random.randint(500000, 3000000),  # 500KB to 3MB
+                file_size=random.randint(500000, 3000000),  
                 uploaded_at=record.created_at + timedelta(minutes=random.randint(5, 120))
             )
             media_items.append(media)
             db.session.add(media)
         
-        if random.random() < 0.2:  # 20% chance of video
+        if random.random() < 0.2:  
             video_url = random.choice(sample_videos)
             media = Media(
                 record_id=record.id,
                 media_type="video", 
                 media_url=video_url,
-                video_url=video_url,  # Backward compatibility
+                video_url=video_url,  
                 filename=f"evidence_{record.id}_{random.randint(1000, 9999)}.mp4",
-                file_size=random.randint(5000000, 50000000),  # 5MB to 50MB
+                file_size=random.randint(5000000, 50000000),  
                 uploaded_at=record.created_at + timedelta(minutes=random.randint(10, 180))
             )
             media_items.append(media)
@@ -494,7 +494,7 @@ def create_notifications(records, users):
                 sent_at=record.updated_at,
                 delivery_status=random.choices(
                     ['sent', 'failed'], 
-                    weights=[95, 5]  # 95% success rate
+                    weights=[95, 5]  
                 )[0],
                 external_id=f"sg_{random.randint(100000, 999999)}"
             )
@@ -512,7 +512,7 @@ def create_notifications(records, users):
                     sent_at=record.updated_at + timedelta(minutes=5),
                     delivery_status=random.choices(
                         ['sent', 'failed'],
-                        weights=[90, 10]  # 90% SMS success rate
+                        weights=[90, 10]  
                     )[0],
                     external_id=f"tw_{random.randint(100000, 999999)}"
                 )

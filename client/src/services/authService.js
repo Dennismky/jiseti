@@ -2,12 +2,12 @@ import api from './api'
 
 export const authService = {
   async login(email, password) {
-    // Try admin login first
+  
     try {
       const response = await api.post('/admin/login', { email, password })
       return response
     } catch (adminError) {
-      // If admin login fails, try user login
+      
       try {
         const response = await api.post('/auth/login', { email, password })
         return response

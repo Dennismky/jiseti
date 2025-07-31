@@ -9,10 +9,10 @@ const api = axios.create({
     'Accept': 'application/json',
   },
   // CORS Fix: Explicit credentials handling
-  withCredentials: false, // Set to true only if you need cookies/sessions
+  withCredentials: false, 
 })
 
-// Request interceptor to add auth token (functionality unchanged)
+
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token')
@@ -36,19 +36,19 @@ api.interceptors.request.use(
   }
 )
 
-// Response interceptor for error handling (enhanced for CORS)
+
 api.interceptors.response.use(
   (response) => {
-    // CORS Fix: Success logging
+    
     if (process.env.NODE_ENV === 'development') {
       console.log(`[API Response] ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`)
     }
     return response.data
   },
   (error) => {
-    // CORS Fix: Enhanced error handling with specific CORS detection
+    
     if (!error.response) {
-      // Network error - likely CORS, server not running, or connectivity issue
+    
       console.error('[API Network Error]', {
         message: error.message,
         code: error.code,
@@ -60,7 +60,7 @@ api.interceptors.response.use(
         }
       })
       
-      // CORS Fix: Specific CORS error detection and helpful messages
+      
       if (error.code === 'ERR_NETWORK' || 
           error.message.includes('CORS') || 
           error.message.includes('Network Error') ||
@@ -93,23 +93,22 @@ api.interceptors.response.use(
       })
     }
     
-    // Handle authentication errors (functionality unchanged)
     if (error.response?.status === 401) {
       localStorage.removeItem('token')
-      // Only redirect if not already on login page
+      
       if (window.location.pathname !== '/login') {
         window.location.href = '/login'
       }
     }
     
-    // CORS Fix: Enhanced error logging
+  
     console.error(`[API Error] ${error.response.status} ${error.config?.method?.toUpperCase()} ${error.config?.url}`, {
       response: error.response.data,
       status: error.response.status,
       headers: error.response.headers
     })
     
-    // Return the error response data (functionality unchanged)
+  
     return Promise.reject(error.response?.data || error.message)
   }
 )
