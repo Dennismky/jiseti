@@ -42,6 +42,6 @@ export const useAuth = () => {
     login,
     register,
     logout: logoutUser,
-    clearError: clearAuthError, // Fixed: Now properly exported
+    clearError: clearAuthError, 
   }
 }

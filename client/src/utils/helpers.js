@@ -8,14 +8,26 @@ export const formatDate = (dateString) => {
   })
 }
 
+// FIXED: Handle backend status values correctly
 export const getStatusColor = (status) => {
   const colors = {
     'draft': 'status-draft',
-    'under investigation': 'status-investigating',
+    'under-investigation': 'status-investigating',  // Fixed: was 'under investigation'
     'resolved': 'status-resolved',
     'rejected': 'status-rejected'
   }
   return colors[status] || 'status-draft'
+}
+
+// FIXED: Convert backend status to display name
+export const getStatusDisplayName = (backendStatus) => {
+  const displayNames = {
+    'draft': 'Draft',
+    'under-investigation': 'Under Investigation',
+    'resolved': 'Resolved', 
+    'rejected': 'Rejected'
+  }
+  return displayNames[backendStatus] || backendStatus
 }
 
 export const truncateText = (text, maxLength = 100) => {

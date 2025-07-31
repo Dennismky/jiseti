@@ -9,9 +9,10 @@ export const RECORD_TYPES = {
   EMERGENCY: 'emergency'
 }
 
+// FIXED: Match backend status values exactly (with hyphens, not spaces)
 export const RECORD_STATUS = {
   DRAFT: 'draft',
-  INVESTIGATING: 'under investigation',
+  INVESTIGATING: 'under-investigation',  // Fixed: was 'under investigation'
   RESOLVED: 'resolved',
   REJECTED: 'rejected'
 }
@@ -37,4 +38,17 @@ export const ROUTES = {
   REGISTER: '/register',
   DASHBOARD: '/dashboard',
   ADMIN: '/admin'
+}
+
+// Status display names for UI (what users see)
+export const STATUS_DISPLAY_NAMES = {
+  'draft': 'Draft',
+  'under-investigation': 'Under Investigation',  // Backend value -> Display name
+  'resolved': 'Resolved',
+  'rejected': 'Rejected'
+}
+
+// Function to get display name from backend status
+export const getStatusDisplayName = (backendStatus) => {
+  return STATUS_DISPLAY_NAMES[backendStatus] || backendStatus
 }

@@ -205,24 +205,38 @@ def admin_login():
 
 @routes.route('/public/records', methods=['GET'])
 def get_public_records():
-    """Get all records for public viewing (anonymous access)"""
+    """Get all records for public viewing (anonymous access) with enhanced search and filtering"""
     try:
         page, per_page = get_pagination_params(request)
         
-        # Optional filters
+        # Enhanced filters with search support
         status_filter = request.args.get('status')
         type_filter = request.args.get('type')
         urgency_filter = request.args.get('urgency')
+        search_term = request.args.get('search', '').strip()
         
-        # Build query
-        query = Record.query.filter(Record.status != 'draft')  # Only show non-draft records
+        # Build query - only show non-draft records publicly
+        query = Record.query.filter(Record.status != 'draft')
         
-        if status_filter:
+        # Apply filters
+        if status_filter and status_filter != 'all':
             query = query.filter(Record.status == status_filter)
-        if type_filter:
+        if type_filter and type_filter != 'all':
             query = query.filter(Record.type == type_filter)
-        if urgency_filter:
+        if urgency_filter and urgency_filter != 'all':
             query = query.filter(Record.urgency_level == urgency_filter)
+        
+        # Apply search functionality
+        if search_term:
+            # Search in title, description, and location
+            search_filter = f"%{search_term}%"
+            query = query.filter(
+                db.or_(
+                    Record.title.ilike(search_filter),
+                    Record.description.ilike(search_filter),
+                    Record.location_name.ilike(search_filter)
+                )
+            )
         
         # Order by vote count and creation date
         query = query.order_by(Record.vote_count.desc(), Record.created_at.desc())
@@ -243,6 +257,14 @@ def get_public_records():
                 'pages': paginated_records.pages,
                 'has_next': paginated_records.has_next,
                 'has_prev': paginated_records.has_prev
+            },
+            'search': {
+                'term': search_term,
+                'filters': {
+                    'status': status_filter,
+                    'type': type_filter,
+                    'urgency': urgency_filter
+                }
             }
         }, 200)
         
@@ -408,7 +430,7 @@ def create_record():
 @routes.route('/my-records', methods=['GET'])
 @jwt_required()
 def get_my_records():
-    """Get current user's records"""
+    """Get current user's records with search and filtering"""
     identity = get_jwt_identity()
     if identity.get('role') != 'user':
         return make_response({'error': 'Only users can view their records'}, 403)
@@ -416,16 +438,29 @@ def get_my_records():
     try:
         page, per_page = get_pagination_params(request)
         
-        # Optional filtering
+        # Enhanced filtering with search
         status_filter = request.args.get('status')
         type_filter = request.args.get('type')
+        search_term = request.args.get('search', '').strip()
         
         query = Record.query.filter_by(normal_user_id=identity['id'])
         
-        if status_filter:
+        # Apply filters
+        if status_filter and status_filter != 'all':
             query = query.filter(Record.status == status_filter)
-        if type_filter:
+        if type_filter and type_filter != 'all':
             query = query.filter(Record.type == type_filter)
+        
+        # Apply search
+        if search_term:
+            search_filter = f"%{search_term}%"
+            query = query.filter(
+                db.or_(
+                    Record.title.ilike(search_filter),
+                    Record.description.ilike(search_filter),
+                    Record.location_name.ilike(search_filter)
+                )
+            )
         
         query = query.order_by(Record.created_at.desc())
         
@@ -656,7 +691,7 @@ def remove_vote(record_id):
 @routes.route('/admin/records', methods=['GET'])
 @jwt_required()
 def get_all_records():
-    """Get all records (admin only)"""
+    """Get all records (admin only) with enhanced search and filtering"""
     identity = get_jwt_identity()
     if identity.get('role') != 'admin':
         return make_response({'error': 'Only admins can view all records'}, 403)
@@ -664,19 +699,21 @@ def get_all_records():
     try:
         page, per_page = get_pagination_params(request)
         
-        # Optional filtering
+        # Enhanced filtering
         status_filter = request.args.get('status')
         type_filter = request.args.get('type')
         urgency_filter = request.args.get('urgency')
         user_id_filter = request.args.get('user_id')
+        search_term = request.args.get('search', '').strip()
         
         query = Record.query
         
-        if status_filter:
+        # Apply filters
+        if status_filter and status_filter != 'all':
             query = query.filter(Record.status == status_filter)
-        if type_filter:
+        if type_filter and type_filter != 'all':
             query = query.filter(Record.type == type_filter)
-        if urgency_filter:
+        if urgency_filter and urgency_filter != 'all':
             query = query.filter(Record.urgency_level == urgency_filter)
         if user_id_filter:
             try:
@@ -684,6 +721,17 @@ def get_all_records():
                 query = query.filter(Record.normal_user_id == user_id)
             except ValueError:
                 return make_response({'error': 'Invalid user_id parameter'}, 400)
+        
+        # Apply search
+        if search_term:
+            search_filter = f"%{search_term}%"
+            query = query.filter(
+                db.or_(
+                    Record.title.ilike(search_filter),
+                    Record.description.ilike(search_filter),
+                    Record.location_name.ilike(search_filter)
+                )
+            )
         
         query = query.order_by(Record.created_at.desc())
         
