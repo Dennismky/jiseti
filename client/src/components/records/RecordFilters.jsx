@@ -1,4 +1,4 @@
-import { RECORD_STATUS, RECORD_TYPES, URGENCY_LEVELS } from '../../constants'
+import { RECORD_TYPES, URGENCY_LEVELS } from '../../constants'
 
 const RecordFilters = ({ filters, onFilterChange }) => {
   const updateFilter = (key, value) => {
@@ -7,7 +7,7 @@ const RecordFilters = ({ filters, onFilterChange }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {/* Status Filter */}
+      {/* Status Filter - FIXED: Using correct backend status values */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Status
@@ -18,9 +18,9 @@ const RecordFilters = ({ filters, onFilterChange }) => {
           className="input-field"
         >
           <option value="all">All Status</option>
-          <option value={RECORD_STATUS.INVESTIGATING}>Under Investigation</option>
-          <option value={RECORD_STATUS.RESOLVED}>Resolved</option>
-          <option value={RECORD_STATUS.REJECTED}>Rejected</option>
+          <option value="under-investigation">Under Investigation</option>
+          <option value="resolved">Resolved</option>
+          <option value="rejected">Rejected</option>
         </select>
       </div>
 
@@ -39,6 +39,8 @@ const RecordFilters = ({ filters, onFilterChange }) => {
           <option value={RECORD_TYPES.INTERVENTION}>Intervention</option>
           <option value={RECORD_TYPES.INCIDENT}>Incident</option>
           <option value={RECORD_TYPES.EMERGENCY}>Emergency</option>
+          <option value={RECORD_TYPES.COMPLAINT}>Complaint</option>
+          <option value={RECORD_TYPES.SUGGESTION}>Suggestion</option>
         </select>
       </div>
 

@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 import os
 import logging
+from datetime import datetime
 
 from models import db
 from routes import register_routes
@@ -25,19 +26,55 @@ def create_app():
     """Application factory pattern"""
     app = Flask(__name__)
     
-    # CORS Configuration - Allow specific origins and methods
+    # CORS Configuration - COMPREHENSIVE FIX
+    # Handle multiple scenarios: with and without /api prefix, different origins
     CORS(app, 
-         resources={r"/*": {
-             "origins": [
-                 "http://localhost:5173",    # Vite dev server
-                 "http://127.0.0.1:5173",   # Alternative localhost
-                 "http://localhost:3000",   # Alternative React dev server
-                 "https://jiseti.go.ke",    # Production domain (if applicable)
-             ],
-             "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-             "allow_headers": ["Content-Type", "Authorization"],
-             "supports_credentials": True
-         }})
+         resources={
+             r"/api/*": {
+                 "origins": [
+                     "http://localhost:5173",    # Vite dev server
+                     "http://127.0.0.1:5173",   # Alternative localhost
+                     "http://localhost:3000",   # Alternative React dev server
+                     "http://localhost:5174",   # Alternative Vite port
+                     "https://jiseti.go.ke",    # Production domain (if applicable)
+                 ],
+                 "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+                 "allow_headers": [
+                     "Content-Type", 
+                     "Authorization", 
+                     "Access-Control-Allow-Credentials",
+                     "Access-Control-Allow-Origin",
+                     "X-Requested-With",
+                     "Accept",
+                     "Origin"
+                 ],
+                 "supports_credentials": True,
+                 "expose_headers": ["Content-Range", "X-Content-Range"],
+                 "max_age": 600  # Cache preflight for 10 minutes
+             },
+             r"/*": {  # Fallback for routes without /api prefix (your current setup)
+                 "origins": [
+                     "http://localhost:5173",
+                     "http://127.0.0.1:5173", 
+                     "http://localhost:3000",
+                     "http://localhost:5174",
+                     "https://jiseti.go.ke"
+                 ],
+                 "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+                 "allow_headers": [
+                     "Content-Type", 
+                     "Authorization", 
+                     "Access-Control-Allow-Credentials",
+                     "Access-Control-Allow-Origin",
+                     "X-Requested-With",
+                     "Accept",
+                     "Origin"
+                 ],
+                 "supports_credentials": True,
+                 "expose_headers": ["Content-Range", "X-Content-Range"],
+                 "max_age": 600
+             }
+         })
     
     # Database Configuration
     database_url = os.getenv('SQLALCHEMY_DATABASE_URI')
@@ -62,12 +99,61 @@ def create_app():
     app.config['JWT_SECRET_KEY'] = jwt_secret
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False  # Tokens don't expire for simplicity
     
-    # Security headers
+    # CORS Fix: Handle preflight requests explicitly
+    @app.before_request
+    def handle_preflight():
+        if request.method == "OPTIONS":
+            response = jsonify({'status': 'OK'})
+            
+            # Get the origin from the request
+            origin = request.headers.get('Origin')
+            
+            # List of allowed origins
+            allowed_origins = [
+                'http://localhost:5173',
+                'http://127.0.0.1:5173',
+                'http://localhost:3000', 
+                'http://localhost:5174',
+                'https://jiseti.go.ke'
+            ]
+            
+            # Set CORS headers if origin is allowed
+            if origin in allowed_origins:
+                response.headers['Access-Control-Allow-Origin'] = origin
+                response.headers['Access-Control-Allow-Credentials'] = 'true'
+                response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, PATCH, OPTIONS'
+                response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With, Accept, Origin'
+                response.headers['Access-Control-Max-Age'] = '600'
+            
+            return response
+    
+    # CORS Fix: Add headers to all responses as backup
     @app.after_request
     def after_request(response):
+        # Get the origin from the request
+        origin = request.headers.get('Origin')
+        
+        # List of allowed origins
+        allowed_origins = [
+            'http://localhost:5173',
+            'http://127.0.0.1:5173',
+            'http://localhost:3000',
+            'http://localhost:5174', 
+            'https://jiseti.go.ke'
+        ]
+        
+        # Add CORS headers if origin is allowed
+        if origin in allowed_origins:
+            response.headers['Access-Control-Allow-Origin'] = origin
+            response.headers['Access-Control-Allow-Credentials'] = 'true'
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, PATCH, OPTIONS'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With, Accept, Origin'
+        
+        # Security headers (unchanged from original)
         response.headers['X-Content-Type-Options'] = 'nosniff'
         response.headers['X-Frame-Options'] = 'DENY'
         response.headers['X-XSS-Protection'] = '1; mode=block'
+        
         return response
     
     # Initialize extensions
@@ -75,10 +161,10 @@ def create_app():
     migrate = Migrate(app, db)
     jwt = JWTManager(app)
     
-    # Register routes
+    # Register routes (unchanged from original)
     register_routes(app)
     
-    # Health check endpoint
+    # Health check endpoint (unchanged from original)
     @app.route('/')
     def home():
         return jsonify({
@@ -112,7 +198,7 @@ def create_app():
                 "error": str(e)
             }), 500
     
-    # Error handlers
+    # Error handlers (unchanged from original)
     @app.errorhandler(404)
     def not_found(error):
         return jsonify({
@@ -150,7 +236,7 @@ def create_app():
             'message': 'Insufficient permissions'
         }), 403
     
-    # JWT error handlers
+    # JWT error handlers (unchanged from original)
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):
         return jsonify({
@@ -207,4 +293,5 @@ if __name__ == '__main__':
     debug = os.getenv('FLASK_ENV') == 'development'
     
     logger.info(f"Starting Jiseti API server on port {port}")
+    # CORS Fix: Bind to all interfaces so frontend can reach backend
     app.run(debug=debug, port=port, host='0.0.0.0')
